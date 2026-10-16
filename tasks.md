@@ -48,11 +48,11 @@ Implements `specs.md` using `design.md`. Do the tasks in order. Each task lists 
 **Done when:** the backend refuses to start when `DATABASE_URL` is missing.
 
 ## T4 — Express app and workshop creation (design §6.1, §6.6) — FR-1
-- [ ] `app.js`:
+- [x] `app.js`:
   - `express.json()`
   - mount the routes
   - error middleware: `AppError` → its own status and code, malformed JSON → 400, anything else → 500 and logged
-- [ ] `POST /workshops`: validate the body, insert the row, return 201 with the camelCase body.
+- [x] `POST /workshops`: validate the body, insert the row, return 201 with the camelCase body.
 
 **Done when:**
 - a valid request returns 201 with `status: "active"`

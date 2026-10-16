@@ -36,14 +36,14 @@ Implements `specs.md` using `design.md`. Do the tasks in order. Each task lists 
 **Done when:** both runs succeed, and the tables exist in DB `workshops`.
 
 ## T3 — Backend config and DB helpers (design §4, §6.6)
-- [ ] `config.js`:
+- [x] `config.js`:
   - read env and convert numbers
   - validate the values, failing fast with a clear message
   - enforce `LEASE_MS > REQUEST_TIMEOUT_MS`
-- [ ] `db.js`:
+- [x] `db.js`:
   - a `pg.Pool` built from `DATABASE_URL`
   - `withTransaction(fn)`: BEGIN, then `fn(client)`, then COMMIT. On any throw, ROLLBACK. Always release the client.
-- [ ] Define the `AppError(status, code, message)` class.
+- [x] Define the `AppError(status, code, message)` class.
 
 **Done when:** the backend refuses to start when `DATABASE_URL` is missing.
 

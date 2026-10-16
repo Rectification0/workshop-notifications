@@ -93,17 +93,17 @@ Implements `specs.md` using `design.md`. Do the tasks in order. Each task lists 
 **Done when:** it returns the rows created in T5 and T6.
 
 ## T8 — Dispatcher (design §7) — FR-5, FR-6, FR-7, FR-8, FR-10
-- [ ] `dispatcher.js` exports `start()` and `stop()`:
+- [x] `dispatcher.js` exports `start()` and `stop()`:
   - `start()` runs a tick immediately, then schedules ticks one after another with `setTimeout` (no overlap)
   - `stop()` cancels the timer and awaits the in-flight tick
-- [ ] Tick: run the atomic claim query from design §7.2, then send every row with `Promise.allSettled`.
-- [ ] Send:
+- [x] Tick: run the atomic claim query from design §7.2, then send every row with `Promise.allSettled`.
+- [x] Send:
   - `fetch` with the `Idempotency-Key: row.id` header and the stored `payload`
   - `AbortSignal.timeout(REQUEST_TIMEOUT_MS)`
-- [ ] Success (2xx): mark the row `sent`.
-- [ ] Anything else: run the retry update from design §7.4, with exponential backoff, jitter and the cap. Record `last_error`.
-- [ ] Catch and log DB errors per row, so a single failure never rejects the tick. The lease covers recovery.
-- [ ] Log each attempt, e.g. `[dispatcher] <id> <type> member=<m> attempt=<n> -> sent | retry in <ms> (<error>)`.
+- [x] Success (2xx): mark the row `sent`.
+- [x] Anything else: run the retry update from design §7.4, with exponential backoff, jitter and the cap. Record `last_error`.
+- [x] Catch and log DB errors per row, so a single failure never rejects the tick. The lease covers recovery.
+- [x] Log each attempt, e.g. `[dispatcher] <id> <type> member=<m> attempt=<n> -> sent | retry in <ms> (<error>)`.
 
 **Done when:** with the mock stopped:
 - the rows stay `pending`

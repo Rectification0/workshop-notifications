@@ -22,16 +22,16 @@ Implements `specs.md` using `design.md`. Do the tasks in order. Each task lists 
 **Done when:** `npm install` succeeds.
 
 ## T2 — Database schema and migration (design §5) — FR-3, FR-5, FR-6
-- [ ] Write `backend/migrations/001_init.sql` exactly as in design §5. It covers:
+- [x] Write `backend/migrations/001_init.sql` exactly as in design §5. It covers:
   - the tables
   - `uq_registration_member`
   - `uq_notification_per_registration`
   - the partial index
-- [ ] Write `backend/scripts/migrate.js`:
+- [x] Write `backend/scripts/migrate.js`:
   - create the `workshops` DB if it is missing (via the `postgres` DB)
   - apply the `*.sql` files in name order
   - log each step
-- [ ] Run `npm run migrate` twice.
+- [x] Run `npm run migrate` twice.
 
 **Done when:** both runs succeed, and the tables exist in DB `workshops`.
 

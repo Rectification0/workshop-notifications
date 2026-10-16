@@ -156,4 +156,30 @@ router.post('/:id/cancel', async (req, res) => {
   });
 });
 
+// Read-only view of a workshop's outbox rows, so the demos can observe delivery (D-1, D-2).
+router.get('/:id/notifications', async (req, res) => {
+  const workshopId = requireWorkshopId(req.params.id);
+  const { rowCount } = await pool.query('SELECT 1 FROM workshops WHERE id = $1', [workshopId]);
+  if (rowCount === 0) throw workshopNotFound();
+
+  // Rows queued by one cancel share created_at (the transaction's now()), so break ties stably.
+  const { rows } = await pool.query(
+    `SELECT id, type, member_id, email, status, attempts, last_error, next_attempt_at, sent_at
+     FROM notifications WHERE workshop_id = $1
+     ORDER BY created_at, member_id, id`,
+    [workshopId],
+  );
+  res.json(rows.map((row) => ({
+    id: row.id,
+    type: row.type,
+    memberId: row.member_id,
+    email: row.email,
+    status: row.status,
+    attempts: row.attempts,
+    lastError: row.last_error,
+    nextAttemptAt: row.next_attempt_at,
+    sentAt: row.sent_at,
+  })));
+});
+
 export default router;

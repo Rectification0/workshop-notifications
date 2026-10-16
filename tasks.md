@@ -88,7 +88,7 @@ Implements `specs.md` using `design.md`. Do the tasks in order. Each task lists 
 - registering after the cancel returns 409
 
 ## T7 — Notifications read endpoint (design §6.4) — D-1, D-2 observability
-- [ ] `GET /workshops/:id/notifications`: 404 if the workshop is unknown. Otherwise return the rows in the camelCase shape, ordered by `created_at`.
+- [x] `GET /workshops/:id/notifications`: 404 if the workshop is unknown. Otherwise return the rows in the camelCase shape, ordered by `created_at`.
 
 **Done when:** it returns the rows created in T5 and T6.
 

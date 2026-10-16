@@ -1,10 +1,21 @@
+import { randomUUID } from 'node:crypto';
 import { Router } from 'express';
-import { pool } from '../db.js';
+import { pool, withTransaction } from '../db.js';
 import { AppError } from '../errors.js';
 
 const router = Router();
 
 const isNonEmptyString = (v) => typeof v === 'string' && v.trim() !== '';
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const workshopNotFound = () => new AppError(404, 'WORKSHOP_NOT_FOUND', 'Workshop not found');
+
+// A malformed id can never match a workshop, so it is reported as not found.
+function requireWorkshopId(id) {
+  if (!UUID_RE.test(id)) throw workshopNotFound();
+  return id;
+}
 
 const toWorkshop = (row) => ({
   id: row.id,
@@ -26,6 +37,72 @@ router.post('/', async (req, res) => {
     [title.trim(), organizerId.trim()],
   );
   res.status(201).json(toWorkshop(rows[0]));
+});
+
+// FR-2..FR-5: register a member. The registration and its confirmation outbox row commit
+// together, and every failure path throws before COMMIT, so a failed registration never
+// leaves a confirmation behind. No call to the notification service is made here (FR-4).
+router.post('/:id/registrations', async (req, res) => {
+  const workshopId = requireWorkshopId(req.params.id);
+  const { memberId, email } = req.body ?? {};
+  if (!isNonEmptyString(memberId)) throw new AppError(400, 'VALIDATION_ERROR', 'memberId must be a non-empty string');
+  if (typeof email !== 'string' || !EMAIL_RE.test(email.trim())) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'email must be a valid email address');
+  }
+
+  const result = await withTransaction(async (client) => {
+    // FOR SHARE conflicts with the FOR UPDATE taken by cancel, so a registration either
+    // commits before the cancel (and is notified) or sees the workshop as cancelled.
+    const { rows: [workshop] } = await client.query(
+      'SELECT id, title, status FROM workshops WHERE id = $1 FOR SHARE',
+      [workshopId],
+    );
+    if (!workshop) throw workshopNotFound();
+    if (workshop.status === 'cancelled') throw new AppError(409, 'WORKSHOP_CANCELLED', 'Workshop has been cancelled');
+
+    let registration;
+    try {
+      ({ rows: [registration] } = await client.query(
+        `INSERT INTO registrations (workshop_id, member_id, email) VALUES ($1, $2, $3)
+         RETURNING id, workshop_id, member_id, email, created_at`,
+        [workshopId, memberId.trim(), email.trim()],
+      ));
+    } catch (err) {
+      if (err.code === '23505' && err.constraint === 'uq_registration_member') {
+        throw new AppError(409, 'ALREADY_REGISTERED', 'Member is already registered for this workshop');
+      }
+      throw err;
+    }
+
+    // The outbox id doubles as the Idempotency-Key, so it is generated here to embed in the payload.
+    const notificationId = randomUUID();
+    const payload = {
+      notificationId,
+      type: 'registration_confirmation',
+      memberId: registration.member_id,
+      email: registration.email,
+      workshopId,
+      message: `You are registered for "${workshop.title}".`,
+    };
+    await client.query(
+      `INSERT INTO notifications (id, type, registration_id, workshop_id, member_id, email, payload)
+       VALUES ($1, 'registration_confirmation', $2, $3, $4, $5, $6)`,
+      [notificationId, registration.id, workshopId, registration.member_id, registration.email, payload],
+    );
+    return { registration, notificationId };
+  });
+
+  const { registration, notificationId } = result;
+  res.status(201).json({
+    registration: {
+      id: registration.id,
+      workshopId: registration.workshop_id,
+      memberId: registration.member_id,
+      email: registration.email,
+      createdAt: registration.created_at,
+    },
+    confirmation: { notificationId, status: 'pending' },
+  });
 });
 
 export default router;

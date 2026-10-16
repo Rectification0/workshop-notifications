@@ -59,14 +59,14 @@ Implements `specs.md` using `design.md`. Do the tasks in order. Each task lists 
 - a missing `title` returns 400
 
 ## T5 — Registration endpoint (design §6.2) — FR-2, FR-3, FR-4, FR-5
-- [ ] Validate `memberId`, `email` and the UUID in `:id`. An invalid UUID returns 404.
-- [ ] Inside `withTransaction`:
+- [x] Validate `memberId`, `email` and the UUID in `:id`. An invalid UUID returns 404.
+- [x] Inside `withTransaction`:
   - `SELECT ... FOR SHARE`
   - 404 if the workshop is missing, 409 `WORKSHOP_CANCELLED` if it is cancelled
   - insert the registration
   - map `23505` on `uq_registration_member` to 409 `ALREADY_REGISTERED`
   - insert the `registration_confirmation` outbox row with the payload from design §6.5
-- [ ] Return 201 right after commit, with `registration` and `confirmation`. Make no outbound HTTP call.
+- [x] Return 201 right after commit, with `registration` and `confirmation`. Make no outbound HTTP call.
 
 **Done when:**
 - a valid request returns 201

@@ -75,12 +75,12 @@ Implements `specs.md` using `design.md`. Do the tasks in order. Each task lists 
 - `notifications` has exactly one row per successful registration and none for failed ones
 
 ## T6 — Cancellation endpoint (design §6.3) — FR-9
-- [ ] Inside `withTransaction`:
+- [x] Inside `withTransaction`:
   - `SELECT ... FOR UPDATE`
   - 404 if the workshop is missing, 409 `WORKSHOP_ALREADY_CANCELLED` if it is already cancelled
   - set the workshop to `cancelled`
   - run `INSERT ... SELECT` to add one `workshop_cancelled` row per registration
-- [ ] Return 200 with `notificationsQueued`.
+- [x] Return 200 with `notificationsQueued`.
 
 **Done when:**
 - with N registrations, cancelling queues N rows

@@ -105,4 +105,55 @@ router.post('/:id/registrations', async (req, res) => {
   });
 });
 
+// FR-9: cancel a workshop and queue one cancellation notice per registered member,
+// all in the same transaction as the status change.
+router.post('/:id/cancel', async (req, res) => {
+  const workshopId = requireWorkshopId(req.params.id);
+
+  const result = await withTransaction(async (client) => {
+    // FOR UPDATE waits for in-flight registrations (FOR SHARE) to commit and blocks new
+    // ones until we commit, so the INSERT ... SELECT below sees every registered member.
+    const { rows: [workshop] } = await client.query(
+      'SELECT id, title, status FROM workshops WHERE id = $1 FOR UPDATE',
+      [workshopId],
+    );
+    if (!workshop) throw workshopNotFound();
+    if (workshop.status === 'cancelled') {
+      throw new AppError(409, 'WORKSHOP_ALREADY_CANCELLED', 'Workshop is already cancelled');
+    }
+
+    const { rows: [cancelled] } = await client.query(
+      `UPDATE workshops SET status = 'cancelled', cancelled_at = now() WHERE id = $1
+       RETURNING id, status, cancelled_at`,
+      [workshopId],
+    );
+
+    // The inner SELECT generates one id per registration (a volatile function in a subquery's
+    // target list is evaluated per row), so each payload carries its own row id as notificationId.
+    const { rowCount } = await client.query(
+      `INSERT INTO notifications (id, type, registration_id, workshop_id, member_id, email, payload)
+       SELECT r.nid, 'workshop_cancelled', r.id, r.workshop_id, r.member_id, r.email,
+              jsonb_build_object(
+                'notificationId', r.nid,
+                'type', 'workshop_cancelled',
+                'memberId', r.member_id,
+                'email', r.email,
+                'workshopId', r.workshop_id,
+                'message', $2::text)
+       FROM (SELECT gen_random_uuid() AS nid, id, workshop_id, member_id, email
+             FROM registrations WHERE workshop_id = $1) r`,
+      [workshopId, `Workshop "${workshop.title}" has been cancelled.`],
+    );
+    return { cancelled, notificationsQueued: rowCount };
+  });
+
+  const { cancelled, notificationsQueued } = result;
+  res.status(200).json({
+    id: cancelled.id,
+    status: cancelled.status,
+    cancelledAt: cancelled.cancelled_at,
+    notificationsQueued,
+  });
+});
+
 export default router;

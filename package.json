@@ -1,0 +1,20 @@
+{
+  "name": "workshop-notifications",
+  "version": "1.0.0",
+  "description": "Workshop registration service with reliable notifications to a mock HTTP notification service (GDG Backend Task 2)",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "migrate": "node --env-file=.env backend/scripts/migrate.js",
+    "start:backend": "node --env-file=.env backend/src/server.js",
+    "start:mock": "node --env-file=.env mock-notifier/src/server.js",
+    "demo": "node --env-file=.env demo/demo.js"
+  },
+  "dependencies": {
+    "express": "^5.3.0",
+    "pg": "^8.23.1"
+  }
+}

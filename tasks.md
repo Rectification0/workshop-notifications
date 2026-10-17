@@ -122,8 +122,8 @@ Implements `specs.md` using `design.md`. Do the tasks in order. Each task lists 
 **Done when:** after a Ctrl+C and restart, pending rows are delivered without any new request.
 
 ## T10 — Mock Notification Service (design §8) — FR-10, FR-11
-- [ ] `mock-notifier/src/server.js`: Express app on `MOCK_PORT`, with in-memory `deliveries` and `config` taken from env.
-- [ ] `POST /notify`, in this order:
+- [x] `mock-notifier/src/server.js`: Express app on `MOCK_PORT`, with in-memory `deliveries` and `config` taken from env.
+- [x] `POST /notify`, in this order:
   1. missing key → 400
   2. key already delivered → 200 `duplicate: true`
   3. member in `failMemberIds` → 503
@@ -131,8 +131,8 @@ Implements `specs.md` using `design.md`. Do the tasks in order. Each task lists 
      - failure → 503, nothing recorded
      - timeout → record, then reply 200 after `timeoutDelayMs`
      - otherwise → record and reply 200
-- [ ] `GET /deliveries`, `GET /config`, and `PUT /config` (partial update, rates clamped to [0, 1]).
-- [ ] Log every outcome.
+- [x] `GET /deliveries`, `GET /config`, and `PUT /config` (partial update, rates clamped to [0, 1]).
+- [x] Log every outcome.
 
 **Done when:**
 - with `failureRate: 1` it always returns 503

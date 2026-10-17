@@ -162,13 +162,26 @@ Implements `specs.md` using `design.md`. Do the tasks in order. Each task lists 
 
 ## T13 — Final verification against the specs
 Run through specs.md §6 acceptance criteria 1–9 and tick each one:
-- [ ] AC1 Create workshop
-- [ ] AC2 Register while the mock is down still returns 201 quickly
-- [ ] AC3 Duplicate registration gives 409, with a single confirmation
-- [ ] AC4 404 / 409 / 400 registrations create no notification
-- [ ] AC5 Pending rows retry, then all are `sent` once the mock is healthy
-- [ ] AC6 Restart recovery (Scenario C)
-- [ ] AC7 Per-member failure isolation
-- [ ] AC8 Cancellation notifies everyone exactly once
-- [ ] AC9 Timeout plus retry gives a single delivery at the mock
-- [ ] Confirm nothing outside specs.md §7 (out of scope) was added.
+- [x] AC1 Create workshop
+- [x] AC2 Register while the mock is down still returns 201 quickly
+- [x] AC3 Duplicate registration gives 409, with a single confirmation
+- [x] AC4 404 / 409 / 400 registrations create no notification
+- [x] AC5 Pending rows retry, then all are `sent` once the mock is healthy
+- [x] AC6 Restart recovery (Scenario C)
+- [x] AC7 Per-member failure isolation
+- [x] AC8 Cancellation notifies everyone exactly once
+- [x] AC9 Timeout plus retry gives a single delivery at the mock
+- [x] Confirm nothing outside specs.md §7 (out of scope) was added.
+
+**Verification record (2026-10-17):** all checks run against the live backend, mock and Postgres.
+- AC1: 201 with `status: "active"`.
+- AC2: registrations returned 201 in 7–17 ms with the mock failing 100%.
+- AC3: second registration returned 409 `ALREADY_REGISTERED`; exactly 1 confirmation row and 1 delivery at the mock.
+- AC4: unknown workshop (404), invalid UUID (404), cancelled workshop (409), missing `memberId` / invalid email / malformed JSON (400). The `notifications` row count was unchanged (35 → 35).
+- AC5: rows stayed `pending` with attempts increasing (1 → 2); all became `sent` once the mock was healthy.
+- AC6: mock failing, register, backend force-killed, mock healthy, backend restarted. It logged `startup backlog: 1` and delivered the row on its first tick; 1 copy at the mock. (Graceful Ctrl+C shutdown was verified in T9.)
+- AC7: with `failMemberIds: ["bad"]`, the other members were delivered while `bad` stayed `pending` (`HTTP 503`).
+- AC8: cancel returned 200 with `notificationsQueued: 4`; a second cancel returned 409; with the mock failing 50% of requests, each member still received exactly 1 cancellation at the mock.
+- AC9: first attempt `timeout after 3000ms` while the mock recorded it; the retry succeeded and the key appears once in `/deliveries`.
+- `npm run demo`: 25/25 PASS, exit 0.
+- Out of scope: only `express` and `pg` as dependencies; only the 4 backend and 4 mock endpoints from the design; no auth, frontend, broker, Docker, dead-letter queue, unregistering or workshop editing/listing.

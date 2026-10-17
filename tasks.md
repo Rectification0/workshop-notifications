@@ -111,13 +111,13 @@ Implements `specs.md` using `design.md`. Do the tasks in order. Each task lists 
 - starting the mock delivers them
 
 ## T9 — Server bootstrap and shutdown (design §7.1, §7.5) — FR-6
-- [ ] `server.js` starts the Express server, then `dispatcher.start()`.
-- [ ] On SIGINT or SIGTERM:
+- [x] `server.js` starts the Express server, then `dispatcher.start()`.
+- [x] On SIGINT or SIGTERM:
   - stop the dispatcher
   - close the server
   - `pool.end()`
   - exit
-- [ ] Log the startup backlog as the number of pending rows.
+- [x] Log the startup backlog as the number of pending rows.
 
 **Done when:** after a Ctrl+C and restart, pending rows are delivered without any new request.
 

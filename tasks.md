@@ -149,12 +149,12 @@ Implements `specs.md` using `design.md`. Do the tasks in order. Each task lists 
 **Done when:** `npm run demo` (with the backend and mock running) prints all PASS and exits 0.
 
 ## T12 — README (design §9, §10) — D-3, D-4
-- [ ] Prerequisites: Node 24 and PostgreSQL. Setup: copy `.env.example` to `.env`, set the password, run `npm install` and `npm run migrate`.
-- [ ] Running: `npm run start:mock` and `npm run start:backend` in two terminals, then `npm run demo`.
-- [ ] An API reference table covering the backend endpoints and the mock endpoints.
-- [ ] Scenario C manual restart walkthrough, with `curl` and PowerShell `Invoke-RestMethod` commands.
-- [ ] A "Reliability design" section that answers the brief's four questions (lost notifications, retries, duplicate delivery, backend restarts), taken from design §9. Also add a short note on failure isolation and on failed registrations.
-- [ ] Known limitations:
+- [x] Prerequisites: Node 24 and PostgreSQL. Setup: copy `.env.example` to `.env`, set the password, run `npm install` and `npm run migrate`.
+- [x] Running: `npm run start:mock` and `npm run start:backend` in two terminals, then `npm run demo`.
+- [x] An API reference table covering the backend endpoints and the mock endpoints.
+- [x] Scenario C manual restart walkthrough, with `curl` and PowerShell `Invoke-RestMethod` commands.
+- [x] A "Reliability design" section that answers the brief's four questions (lost notifications, retries, duplicate delivery, backend restarts), taken from design §9. Also add a short note on failure isolation and on failed registrations.
+- [x] Known limitations:
   - the mock's state is in memory
   - a confirmation and a cancellation notice for the same member are independent, so their arrival order is not guaranteed
 

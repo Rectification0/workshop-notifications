@@ -140,11 +140,11 @@ Implements `specs.md` using `design.md`. Do the tasks in order. Each task lists 
 - a repeated key returns `duplicate: true`
 
 ## T11 — Demo script (design §10) — D-1, D-2
-- [ ] `demo/demo.js` includes:
+- [x] `demo/demo.js` includes:
   - helpers: `api(method, path, body)` and `waitFor(predicate, timeoutMs=30000)`, which polls every 500 ms
   - an `expect` that prints PASS or FAIL and sets a non-zero exit code on failure
-- [ ] Scenario A (registration and cancellation) and Scenario B (failure, isolation, recovery and duplicate suppression), exactly as in design §10.
-- [ ] Always restore the mock config at the end, using `finally`.
+- [x] Scenario A (registration and cancellation) and Scenario B (failure, isolation, recovery and duplicate suppression), exactly as in design §10.
+- [x] Always restore the mock config at the end, using `finally`.
 
 **Done when:** `npm run demo` (with the backend and mock running) prints all PASS and exits 0.
 
